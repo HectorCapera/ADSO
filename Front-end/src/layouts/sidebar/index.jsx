@@ -1,8 +1,14 @@
+//react-router  packages
+import { NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useState } from "react";
 
 // react-icons
 import { IoIosArrowBack } from "react-icons/io";
+import { BsFillPersonVcardFill } from "react-icons/bs";
+import { AiOutlineAppstore } from "react-icons/ai";
+import { GrSchedules } from "react-icons/gr";
+import { HiOutlineDatabase } from "react-icons/hi";
 
 const Sidebar = () => {
   const Sidebar_animation = {
@@ -30,6 +36,7 @@ const Sidebar = () => {
         animate={isOpen ? "open" : "closed"}
         className="bg-white text-gray shadow-xl z-[999] w-[16rem] max-w[16rem] h-screen overflow-hidden md:relative fixed"
       >
+        {/* logo */}
         <div className="flex items-center gap-2.5 font-medium border-b border-slate-300 py-3 mx-3">
           <img
             src="https://img.icons8.com/color/512/firebase.png"
@@ -37,6 +44,34 @@ const Sidebar = () => {
             width={45}
           />
           <span className="text-xl whitespace-space-pre"> Fireball</span>
+        </div>
+
+        {/* Navigation links */}
+        <div className="flex flex-col h-full ">
+          {/*first*/}
+          <ul className="whitespace-pre  px-2.5  text-[0.9rem] py-5 flex  flex-col  gap-1  font  medium overflow-x-hidden">
+            <li>
+              <NavLink to="/" className={"link"}>
+                <AiOutlineAppstore size={23} className="min-w-max" />
+                All apps
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/pacientes" className={"link"}>
+                <BsFillPersonVcardFill size={23} className="min-w-max" />
+                Pacientes
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/citas" className={"link"}>
+                <GrSchedules size={23} className="min-w-max" />
+                Citas
+              </NavLink>
+            </li>
+          </ul>
+
+          {/*second*/}
+          <div className=""></div>
         </div>
 
         {/* Control arrow button */}
