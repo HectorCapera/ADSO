@@ -3,20 +3,16 @@ import { NavLink } from "react-router-dom";
 import { useState } from "react";
 
 //Packages
-import { motion } from "framer-motion";
 
 // react-icons
 import { IoIosArrowBack } from "react-icons/io";
 import { BsFillPersonVcardFill } from "react-icons/bs";
 import { AiOutlineAppstore } from "react-icons/ai";
 import { GrSchedules } from "react-icons/gr";
-import { HiOutlineDatabase } from "react-icons/hi";
-import { RiBuilding3Line } from "react-icons/ri";
 
 //components
 import SubMenu from "./SubMenu";
 import { CiSettings } from "react-icons/ci";
-import { div } from "framer-motion/client";
 
 const Sidebar = () => {
   const Sidebar_animation = {
@@ -35,23 +31,6 @@ const Sidebar = () => {
       },
     },
   };
-
-  const subMenuList = [
-    {
-      //Main menu name
-      name: "build",
-      icon: RiBuilding3line,
-      //submenus
-      menus: ["auth", "app CiSettings2", "hosting"],
-    },
-    {
-      //Main menu name
-      name: "database",
-      icon: HiOutlineDatabase,
-      //submenus
-      menus: ["firestore", "realtime database", "storage"],
-    },
-  ];
 
   const [isOpen, setIsOpen] = useState(true);
   return (
@@ -94,11 +73,6 @@ const Sidebar = () => {
               <small className="pl-3 text-slate-500-inline-block mb-2">
                 Categorías
               </small>
-              {subMenusList?.map((menu) => (
-                <div key={menu.name} className="flex flex-col gap-1">
-                  <SubMenu data={menu} />
-                </div>
-              ))}
             </div>
 
             <li>
