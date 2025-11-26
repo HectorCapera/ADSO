@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-CitasPsicologiaAppApplication<citas-psicologia-app>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.sena.citaspsicologia.citas_psicologia_app.CitasPsicologiaAppApplication",
+            "projectName": "citas-psicologia-app",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
