@@ -8,7 +8,7 @@ import java.time.LocalDate; // Necesario para mapear DATE [cite: 103]
 import java.time.LocalTime; // Necesario para mapear TIME [cite: 104]
 
 /**
- * Clase que mapea la tabla Citas, implementando las relaciones N:1 con Pacientes, Psicologos y Servicios.
+ * Clase que mapea la tabla Citas, implementando las relaciones N:1 con Pacientes, Psicólogos y Servicios.
  */
 @Entity
 @Table(name = "Citas")

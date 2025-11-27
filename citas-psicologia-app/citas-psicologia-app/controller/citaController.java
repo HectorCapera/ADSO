@@ -1,61 +1,71 @@
-package citas_psicologia_app.controller;
+package com.sena.citaspsicologia.citas_psicologia_app.controller;
 
-import citas_psicologia_app.model.Cita;
-import citas_psicologia_app.service.CitaService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import com.sena.citaspsicologia.citas_psicologia_app.dto.CitaRequestDTO;
+import com.sena.citaspsicologia.citas_psicologia_app.model.Cita;
+import com.sena.citaspsicologia.citas_psicologia_app.model.Paciente;
+import com.sena.citaspsicologia.citas_psicologia_app.model.Psicologo;
+import com.sena.citaspsicologia.citas_psicologia_app.model.Servicio;
+import com.sena.citaspsicologia.citas_psicologia_app.repository.CitaRepository;
+import com.sena.citaspsicologia.citas_psicologia_app.repository.PacienteRepository;
+import com.sena.citaspsicologia.citas_psicologia_app.repository.PsicologoRepository;
+import com.sena.citaspsicologia.citas_psicologia_app.repository.ServicioRepository;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
-/**
- * Controlador REST para manejar las peticiones HTTP relacionadas con el módulo de Citas.
- */
-@RestController // Combina @Controller y @ResponseBody (indica que retorna datos, no vistas)
-@RequestMapping("/api/citas") // Define el URL base para todos los métodos de este controlador
-@CrossOrigin(origins = "http://localhost:5173") // Permite solicitudes desde el puerto 5173
+@RestController
+@RequestMapping("/api/citas")
+@CrossOrigin(origins = "http://localhost:5173") // Vite
 public class CitaController {
 
-    // 1. INYECCIÓN DEL SERVICIO
-    // Spring se encarga de crear e inyectar una instancia de CitaService.
-    private final CitaService citaService;
+    private final CitaRepository citaRepository;
+    private final PacienteRepository pacienteRepository;
+    private final PsicologoRepository psicologoRepository;
+    private final ServicioRepository servicioRepository;
 
-    @Autowired
-    public CitaController(CitaService citaService) {
-        this.citaService = citaService;
+    public CitaController(
+            CitaRepository citaRepository,
+            PacienteRepository pacienteRepository,
+            PsicologoRepository psicologoRepository,
+            ServicioRepository servicioRepository
+    ) {
+        this.citaRepository = citaRepository;
+        this.pacienteRepository = pacienteRepository;
+        this.psicologoRepository = psicologoRepository;
+        this.servicioRepository = servicioRepository;
     }
 
-    // 2. ENDPOINT PARA CREAR/AGENDAR UNA CITA (POST)
-    // URL: POST /api/citas
-    @PostMapping
-    public ResponseEntity<Cita> agendarCita(@RequestBody Cita nuevaCita) {
-        // Llama al método de la capa Service
-        Cita citaAgendada = citaService.agendarCita(nuevaCita);
-        
-        // Retorna la cita creada y el código de estado 201 (CREATED)
-        return new ResponseEntity<>(citaAgendada, HttpStatus.CREATED); 
-    }
-
-    // 3. ENDPOINT PARA LISTAR TODAS LAS CITAS (GET)
-    // URL: GET /api/citas
+    // GET: listar todas las citas
     @GetMapping
-    public ResponseEntity<List<Cita>> obtenerTodas() {
-        // Llama al método de la capa Service
-        List<Cita> citas = citaService.listarTodasLasCitas();
-        
-        // Retorna la lista de citas y el código de estado 200 (OK)
-        return ResponseEntity.ok(citas); 
+    public List<Cita> listar() {
+        return citaRepository.findAll();
     }
-    
-    // NOTA: Para cumplir el CRUD, se deben añadir los métodos PUT/PATCH y DELETE.
-    
-    // 4. ENDPOINT PARA CANCELAR CITA POR ID (DELETE)
-    // URL: DELETE /api/citas/{id}
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> cancelarCita(@PathVariable Integer id) {
-        citaService.cancelarCita(id);
-        // Retorna el código de estado 204 (NO CONTENT)
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT); 
+
+    // POST: crear una cita desde el DTO
+    @PostMapping
+    public Cita crear(@RequestBody CitaRequestDTO dto) {
+        Cita cita = new Cita();
+
+        // Asumiendo que en tu entidad Cita tienes LocalDate y LocalTime
+        cita.setFecha(LocalDate.parse(dto.getFecha()));   // "2025-11-26"
+        cita.setHora(LocalTime.parse(dto.getHora()));     // "10:30:00"
+        cita.setEstado(dto.getEstado());
+
+        Paciente paciente = pacienteRepository.findById(dto.getIdPaciente())
+                .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
+
+        Psicologo psicologo = psicologoRepository.findById(dto.getIdPsicologo())
+                .orElseThrow(() -> new RuntimeException("Psicólogo no encontrado"));
+
+        Servicio servicio = servicioRepository.findById(dto.getIdServicio())
+                .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
+
+        cita.setPaciente(paciente);
+        cita.setPsicologo(psicologo);
+        cita.setServicio(servicio);
+
+        return citaRepository.save(cita);
     }
 }
