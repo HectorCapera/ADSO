@@ -26,9 +26,9 @@ export const CitasPage = () => {
             fecha, 
             hora: `${hora}:00`,
             estado: "Pendiente",
-            paciente: { idPaciente: 1 },
-            psicologo: { idPsicologo: 1 },
-            servicio: { idServicio: 1 }
+            paciente: 1,
+            psicologo: 1,
+            servicio: 1,
         
         };
         try {
