@@ -1,13 +1,10 @@
-package citas_psicologia_app.model; 
+package com.sena.citaspsicologia.citas_psicologia_app.model;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
-/**
- * Clase que mapea la tabla Psicologos.
- */
 @Entity
 @Table(name = "Psicologos")
 @Data
@@ -18,17 +15,17 @@ public class Psicologo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID_Psicologo")
-    private Integer idPsicologo;
+    private Long idPsicologo;
 
-    @Column(name = "Nombre", length = 50, nullable = false)
+    @Column(name = "Nombre")
     private String nombre;
 
-    @Column(name = "Especialidad", length = 100)
+    @Column(name = "Especialidad")
     private String especialidad;
 
-    @Column(name = "Telefono", length = 15)
+    @Column(name = "Telefono")
     private String telefono;
 
-    @Column(name = "Correo", length = 100, unique = true) // Mapea la restricción UNIQUE 
+    @Column(name = "Correo")
     private String correo;
 }
