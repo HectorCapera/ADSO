@@ -1,47 +1,84 @@
 package com.sena.citaspsicologia.citas_psicologia_app.model;
 
-import jakarta.persistence.*; // ¡IMPORTANTE! Spring Boot 3 usa Jakarta, no Javax
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 /**
- * Clase que mapea la tabla Citas.
+ * Clase Entidad que representa la tabla 'citas' en la base de datos.
+ * Utiliza JPA (Java Persistence API) para el mapeo objeto-relacional (ORM).
  */
 @Entity
-@Table(name = "Citas")
-@Data // Lombok genera Getters, Setters, toString, etc.
-@NoArgsConstructor // Constructor vacío
-@AllArgsConstructor // Constructor con argumentos
+@Table(name = "citas") // Define el nombre exacto de la tabla en MySQL
 public class Cita {
 
+    /**
+     * Identificador único de la cita (Llave Primaria).
+     * @GeneratedValue indica que el ID se autoincrementa automáticamente.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID_Cita")
-    private Long idCita; // Recomendable usar Long para IDs en JPA
+    private Long id;
 
-    @Column(name = "Fecha", nullable = false)
-    private LocalDate fecha;
+    @Column(nullable = false) // Campo obligatorio
+    private LocalDate fecha; // Almacena solo la fecha (AAAA-MM-DD)
 
-    @Column(name = "Hora", nullable = false)
-    private LocalTime hora;
+    @Column(nullable = false)
+    private LocalTime hora;  // Almacena solo la hora (HH:MM:SS)
 
-    @Column(name = "Estado", length = 20)
+    @Column(nullable = false, length = 500) // Se amplía el límite de caracteres para el motivo
+    private String motivo;
+
+    /**
+     * Estado actual de la cita (ej. Pendiente, Confirmada, Cancelada).
+     * Se gestionará como texto simple para este alcance del proyecto.
+     */
     private String estado;
 
-    // --- Relaciones ---
+    /**
+     * ID del paciente asociado a la cita.
+     * Nota: Para mantener el diseño desacoplado en esta fase, guardamos solo el ID
+     * del usuario (Foreign Key lógica) en lugar de la relación completa @ManyToOne.
+     */
+    @Column(name = "paciente_id")
+    private Long pacienteId;
 
-    @ManyToOne(fetch = FetchType.EAGER) // EAGER ayuda a cargar los datos completos al listar
-    @JoinColumn(name = "ID_Paciente", referencedColumnName = "ID_Paciente")
-    private Paciente paciente;
+    // ==========================================
+    // CONSTRUCTORES
+    // ==========================================
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "ID_Psicologo", referencedColumnName = "ID_Psicologo")
-    private Psicologo psicologo;
+    // Constructor vacío requerido por JPA/Hibernate
+    public Cita() {}
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "ID_Servicio", referencedColumnName = "ID_Servicio")
-    private Servicio servicio;
+    // Constructor para crear instancias con datos iniciales
+    public Cita(LocalDate fecha, LocalTime hora, String motivo, String estado, Long pacienteId) {
+        this.fecha = fecha;
+        this.hora = hora;
+        this.motivo = motivo;
+        this.estado = estado;
+        this.pacienteId = pacienteId;
+    }
+
+    // ==========================================
+    // GETTERS Y SETTERS
+    // Permiten el acceso y modificación encapsulada de los atributos
+    // ==========================================
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public LocalDate getFecha() { return fecha; }
+    public void setFecha(LocalDate fecha) { this.fecha = fecha; }
+
+    public LocalTime getHora() { return hora; }
+    public void setHora(LocalTime hora) { this.hora = hora; }
+
+    public String getMotivo() { return motivo; }
+    public void setMotivo(String motivo) { this.motivo = motivo; }
+
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
+
+    public Long getPacienteId() { return pacienteId; }
+    public void setPacienteId(Long pacienteId) { this.pacienteId = pacienteId; }
 }

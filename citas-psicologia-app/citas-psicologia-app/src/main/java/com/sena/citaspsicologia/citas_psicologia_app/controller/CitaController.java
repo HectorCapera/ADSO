@@ -1,76 +1,76 @@
 package com.sena.citaspsicologia.citas_psicologia_app.controller;
 
-// Importamos tus modelos (que ahora están en la ruta correcta)
 import com.sena.citaspsicologia.citas_psicologia_app.model.Cita;
-import com.sena.citaspsicologia.citas_psicologia_app.model.Paciente;
-import com.sena.citaspsicologia.citas_psicologia_app.model.Psicologo;
-import com.sena.citaspsicologia.citas_psicologia_app.model.Servicio;
-
-// Importamos tus repositorios
 import com.sena.citaspsicologia.citas_psicologia_app.repository.CitaRepository;
-import com.sena.citaspsicologia.citas_psicologia_app.repository.PacienteRepository;
-import com.sena.citaspsicologia.citas_psicologia_app.repository.PsicologoRepository;
-import com.sena.citaspsicologia.citas_psicologia_app.repository.ServicioRepository;
-
-// Importamos el DTO
-import com.sena.citaspsicologia.citas_psicologia_app.dto.CitaRequestDTO;
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.time.LocalDate;
-import java.time.LocalTime;
+
 import java.util.List;
 
+/**
+ * Controlador REST que expone los endpoints para la gestión de citas.
+ * Maneja las peticiones HTTP y conecta el Frontend con la Base de Datos.
+ */
 @RestController
-@RequestMapping("/api/citas")
-@CrossOrigin(origins = "http://localhost:5173")
+@RequestMapping("/api/citas") // Define la URL base: http://localhost:8090/api/citas
+@CrossOrigin(origins = "*") // Permite peticiones desde cualquier origen (útil para desarrollo Frontend)
+@Tag(name = "Gestión de Citas", description = "Operaciones CRUD para el agendamiento y administración de citas")
 public class CitaController {
 
-    private final CitaRepository citaRepository;
-    private final PacienteRepository pacienteRepository;
-    private final PsicologoRepository psicologoRepository;
-    private final ServicioRepository servicioRepository;
+    // Inyección de dependencias del repositorio para acceder a la base de datos
+    @Autowired
+    private CitaRepository citaRepository;
 
-    public CitaController(CitaRepository citaRepository, PacienteRepository pacienteRepository,
-                          PsicologoRepository psicologoRepository, ServicioRepository servicioRepository) {
-        this.citaRepository = citaRepository;
-        this.pacienteRepository = pacienteRepository;
-        this.psicologoRepository = psicologoRepository;
-        this.servicioRepository = servicioRepository;
-    }
-
+    /**
+     * Endpoint para LISTAR todas las citas registradas.
+     * Método HTTP: GET
+     */
     @GetMapping
-    public List<Cita> listar() {
+    @Operation(summary = "Obtener todas las citas", description = "Retorna un listado completo de las citas almacenadas en el sistema.")
+    public List<Cita> listarCitas() {
         return citaRepository.findAll();
     }
 
+    /**
+     * Endpoint para AGENDAR (CREAR) una nueva cita.
+     * Método HTTP: POST
+     * @param cita Objeto JSON recibido en el cuerpo de la petición.
+     */
     @PostMapping
-    public Cita crear(@RequestBody CitaRequestDTO dto) {
-        Cita cita = new Cita();
-        
-        // Convertimos los Strings del DTO a Fecha/Hora de Java
-        cita.setFecha(LocalDate.parse(dto.getFecha())); 
-        cita.setHora(LocalTime.parse(dto.getHora()));
-        cita.setEstado(dto.getEstado());
-
-        // Buscamos las entidades relacionadas usando los IDs
-        Paciente paciente = pacienteRepository.findById(dto.getIdPaciente())
-                .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
-        
-        Psicologo psicologo = psicologoRepository.findById(dto.getIdPsicologo())
-                .orElseThrow(() -> new RuntimeException("Psicologo no encontrado"));
-        
-        Servicio servicio = servicioRepository.findById(dto.getIdServicio())
-                .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
-
-        cita.setPaciente(paciente);
-        cita.setPsicologo(psicologo);
-        cita.setServicio(servicio);
-
+    @Operation(summary = "Agendar nueva cita", description = "Registra una cita con estado inicial 'Pendiente'.")
+    public Cita agendarCita(@RequestBody Cita cita) {
+        // Se asigna el estado por defecto antes de guardar
+        cita.setEstado("Pendiente");
         return citaRepository.save(cita);
     }
-    
+
+    /**
+     * Endpoint para CONSULTAR citas de un paciente específico.
+     * Método HTTP: GET
+     * URL ejemplo: /api/citas/paciente/1
+     */
+    @GetMapping("/paciente/{id}")
+    @Operation(summary = "Consultar citas por Paciente", description = "Filtra las citas asociadas al ID de un usuario específico.")
+    public List<Cita> listarPorPaciente(@PathVariable Long id) {
+        return citaRepository.findByPacienteId(id);
+    }
+
+    /**
+     * Endpoint para CANCELAR (ELIMINAR) una cita.
+     * Método HTTP: DELETE
+     * URL ejemplo: /api/citas/5
+     */
     @DeleteMapping("/{id}")
-    public void eliminar(@PathVariable Long id) {
-        citaRepository.deleteById(id);
+    @Operation(summary = "Cancelar Cita", description = "Elimina el registro de una cita mediante su ID.")
+    public ResponseEntity<Void> cancelarCita(@PathVariable Long id) {
+        // Verificamos si la cita existe antes de intentar borrarla
+        if (citaRepository.existsById(id)) {
+            citaRepository.deleteById(id);
+            return ResponseEntity.ok().build(); // Retorna HTTP 200 OK
+        }
+        return ResponseEntity.notFound().build(); // Retorna HTTP 404 Not Found si no existe
     }
 }
